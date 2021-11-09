@@ -5,7 +5,8 @@ const Router = require('./router');
 const { GRAPHCMS_ENDPOINT, GRAPHCMS_MUTATION_TOKEN, GRAPHCMS_WEBHOOK_SECRET } = process.env;
 
 const routes = {
-  Ride: require('./publishRide')
+  Ride: require('./publishRide'),
+  LocationPoint: require('./publishLocationPoint')
 }
 
 const context = {

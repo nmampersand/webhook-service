@@ -33,7 +33,7 @@ module.exports = R.curry(async (handlers, context, req) => {
       return okRequest();
     }
 
-    await handler(context, body.data);
+    await handler(context)(body);
   
     return okRequest();
   } catch(err) {

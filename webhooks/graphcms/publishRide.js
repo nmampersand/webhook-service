@@ -1,22 +1,30 @@
 const { gql } = require('graphql-request');
+const R = require('ramda');
 
-module.exports = ({ graphcmsClient }, ride) => Promise.all([
-  // publish location points
-  graphcmsClient.request(gql`
-    mutation publishManyLocationPoints($rideId: ID!) {
-      publishManyLocationPoints(where: {ride: {id: $rideId}}, to: PUBLISHED) {
-        count
+module.exports = ({ graphcmsClient }) => R.cond([
+  [R.propEq('operation', 'create'), ({ data }) => graphcmsClient
+    .request(gql`
+      mutation PublishNewRide($id: ID!) {
+        publishManyLocationPoints(where: {ride: {id: $id}}, to: PUBLISHED) {
+          count
+        }
+        publishRide(where: { id: $id }, to: PUBLISHED) {
+          id
+        }
       }
-    }`,
-    { rideId: ride.id }
-  ).then(() => console.log(`Published location points for Ride(${ride.id})`)),
-  // publish ride
-  graphcmsClient.request(gql`
-    mutation publishRide($id: ID!) {
-      publishRide(where: { id: $id }, to: PUBLISHED) {
-        id
+    `,
+    { id: data.id })
+    .then(() => console.log(`Published Ride(${data.id})`))
+  ],
+  [R.propEq('operation', 'update'), ({ data }) => graphcmsClient
+    .request(gql`
+      mutation PublishRide($id: ID!) {
+        publishRide(where: { id: $id }, to: PUBLISHED) {
+          id
+        }
       }
-    }`,
-    { id: ride.id }
-  ).then(() => console.log(`Published Ride(${ride.id})`))
+    `, { id: data.id })
+    .then(() => console.log(`Published Ride(${ data.id })`))
+  ],
+  [R.T, () => true]
 ]);
